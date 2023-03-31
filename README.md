@@ -29,7 +29,7 @@ We are planning to use the CUDA language to parallelize the different compressio
 
 ### Schedule
 Week 1: Implement sequential huffman and LZSS compression <br /> 
-Week 2: Week 3: Implement cuda version of compression algorithms <br /> 
+Week 2 & Week 3: Implement cuda version of compression algorithms <br /> 
 Week 4: Implement streaming/pipeline compression or another form of avoid I/O bottleneck <br /> 
 Week 5: Conduct Data Analysis on parallelized compression algorithms <br /> 
 Week 6: Fine tune and pivot if necessary (last week depends on results of previous weeks)
