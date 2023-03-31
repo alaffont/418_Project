@@ -28,10 +28,10 @@ Goals that we plan to achieve are parallelizing huffman compression and LZSS com
 We are planning to use the CUDA language to parallelize the different compression algorithms since CUDA has faster downloads and readbacks to the GPU. Since compression algorithms are mainly I/O bound, doing everything in GPU will produce the fastest speedup.
 
 ### Schedule
-Week 1: Implement sequential huffman and LZSS compression
-Week 2: Week 3: Implement cuda version of compression algorithms
-Week 4: Implement streaming/pipeline compression or another form of avoid I/O bottleneck
-Week 5: Conduct Data Analysis on parallelized compression algorithms
+Week 1: Implement sequential huffman and LZSS compression <br /> 
+Week 2: Week 3: Implement cuda version of compression algorithms <br /> 
+Week 4: Implement streaming/pipeline compression or another form of avoid I/O bottleneck <br /> 
+Week 5: Conduct Data Analysis on parallelized compression algorithms <br /> 
 Week 6: Fine tune and pivot if necessary (last week depends on results of previous weeks)
 
 
