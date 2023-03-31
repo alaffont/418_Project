@@ -1,5 +1,5 @@
-###Parallelizing Different Compression Algorithms Using GPU
-##Tyler Tan and Alfonso Laffont
+### Parallelizing Different Compression Algorithms Using GPU
+## Tyler Tan and Alfonso Laffont
 
 # Summary
 We are going to parallelize different compression algorithms such as LZSS and huffman compression using both GPU and multi-core CPU. Then, we are going to perform a detailed analysis of both system’s performance and characteristics, compared to the sequential form. 
