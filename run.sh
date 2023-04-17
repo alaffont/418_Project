@@ -1,3 +1,10 @@
+#!/bin/bash
+
 g++ compression.cpp
-./a.out example.txt
-rm a.out
+
+if [ -e "a.out" ]
+then
+    ./a.out example.txt
+else
+    echo "Error Making File"
+fi
