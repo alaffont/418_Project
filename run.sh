@@ -1,6 +1,6 @@
 #!/bin/bash
 
-g++ compression.cpp
+g++ compression.cpp -g
 
 if [ -e "a.out" ]
 then
