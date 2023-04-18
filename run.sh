@@ -4,7 +4,8 @@ g++ compression.cpp
 
 if [ -e "a.out" ]
 then
-    ./a.out example.txt
+    ./a.out short.txt
+    rm a.out
 else
     echo "Error Making File"
 fi
