@@ -66,14 +66,15 @@ uint16_t find_longest_match(std::vector<unsigned char> data, int i){
 }
 
 // unsigned char is the representation of bytes that we will be using
-std::vector<unsigned char> compress(std::vector<unsigned char> data, std::vector<bool> compress_flags){
+std::vector<unsigned char> compress(std::vector<unsigned char> data, std::vector<bool> &compress_flags){
     int i = 0;
     std::vector<unsigned char> output_buffer;
     // loop through all char in text
     while (i < data.size()){
         uint16_t longest_match = find_longest_match(data, i);
         // printf("3\n");
-        if(longest_match != 0){
+        uint16_t match_length = get_length(longest_match); 
+        if(longest_match != 0 && match_length > 2){
             // 12 bytes = distance and 4 bytes is length
             uint16_t match_distance = get_distance(longest_match);
             uint16_t match_length = get_length(longest_match); 
@@ -94,20 +95,30 @@ std::vector<unsigned char> compress(std::vector<unsigned char> data, std::vector
     return output_buffer;
 }
 
-std::vector<unsigned char> decompress(std::vector<unsigned char> data, std::vector<bool> compress_flags){
+std::vector<unsigned char> decompress(std::vector<unsigned char> data, std::vector<bool> &compress_flags){
     int compress_index = 0;
     int data_index = 0;
     std::vector<unsigned char> output;
 
     while(data_index < data.size()){
         // file is compressed
-        if(compress_flags[compress_index]){
+        // printf("%d\n", compress_flags.at(compress_index));
+        if(compress_flags.at(compress_index) == 1){
             uint16_t compressed_data = data[data_index];
             uint16_t match_distance = get_distance(compressed_data);
             uint16_t match_length = get_length(compressed_data); 
-            for(int i = 0; i < match_length; i++){
-                output.push_back(data[(data_index-match_distance)+i]);
+            output.push_back(40);
+            for (char c : std::to_string(match_distance)) {
+                output.push_back(static_cast<int>(c));
             }
+            output.push_back(44);
+            for (char c : std::to_string(match_length)){
+                output.push_back(static_cast<int>(c));
+            }
+            output.push_back(41);
+            // for(int i = 0; i < match_length; i++){
+            //     output.push_back(data[(data_index-match_distance)+i]);
+            // }
             // two bytes for compressed
             data_index += 2;
         }
@@ -137,15 +148,26 @@ int main(int argc, char *argv[]) {
     std::string s = strStream.str(); 
 
     // text input
-    std::vector<unsigned char> input(s.begin(), s.end());
+    vector<unsigned char> input(s.begin(), s.end());
     // compression flags all init at 0
-    std::vector<bool> compress_flags(input.size(), 0);
+    vector<bool> compress_flags(input.size(), 0);
     
+
     // printf("%ld\n", input.size());
     auto compressed_buf = compress(input, compress_flags);
+
+    // for (bool b : compress_flags) {
+    //     std::cout << b << " ";
+    // }
+    // std::cout << std::endl;
+
     auto output = decompress(compressed_buf, compress_flags);
 
-    printf("%s", output.data());
+    for (unsigned char c : output) {
+        std::cout << (char)c << "";
+    }
+    std::cout << std::endl;
+
 
     return 1;
 }
