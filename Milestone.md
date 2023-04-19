@@ -1,4 +1,4 @@
-###Updated Schedule
+### Updated Schedule
 4/19-4/24: Parallelize huffman compression as well as implementing pipelining (Tyler)
 4//24-4/30: Parallelize LZSS compression as well as implementing pipelining (Alfonso)
 5/1: Run and take measurements of sequential code and parallelized code (Both)
