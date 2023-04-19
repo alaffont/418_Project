@@ -1,8 +1,8 @@
 ### Updated Schedule
-4/19-4/24: Parallelize huffman compression as well as implementing pipelining (Tyler)
-4//24-4/30: Parallelize LZSS compression as well as implementing pipelining (Alfonso)
-5/1: Run and take measurements of sequential code and parallelized code (Both)
-5/2-5/4: Work on posterboard graphs, documentation and report(Both)
+4/19-4/24: Parallelize huffman compression as well as implementing pipelining (Tyler) <br /> 
+4//24-4/30: Parallelize LZSS compression as well as implementing pipelining (Alfonso) <br /> 
+5/1: Run and take measurements of sequential code and parallelized code (Both) <br /> 
+5/2-5/4: Work on posterboard graphs, documentation and report(Both) <br /> 
 
 ### Work Update
 	So far we have finished implementing both sequential versions of LZSS compression as well as Huffman compression, although they have both taken significantly longer than expected. However, we expected this step to take the longest amount of time to code up, since we didn’t use any of the many sources online for sequential code versions of both compressions. The reason we didn’t use any online source for this code is because we wanted to write our own version in order to make it easier for us to parallelize. 
