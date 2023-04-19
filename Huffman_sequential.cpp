@@ -88,3 +88,31 @@ void createHTree(struct tree* bTree) {
     }
 }
 
+bool isLeaf (struct node* bNode) {
+    return !(bNode->left) && !(bNode->right);
+}
+
+struct tree* heapCreate(char input[], int freq[], int size) {
+    struct tree* result = newTree(size);
+    result->size = size;
+    for (int i = 0; i < size; i++) {
+        result->array[i] = newNode(input[i], freq[i]);
+    }
+    createHtree(result);
+    return result;
+}
+
+struct node* createHuffmanTree(char input[], int freq[], int size) {
+    struct node *left, *right, *root;
+    struct tree* heap = heapCreate(input, freq, size);
+    while (heap->size != 1) {
+        left = getMin(heap);
+        right = getMin(heap);
+        //'+' is for internal nodes that have the frequency of the sum of its 2 children
+        root = newNode('+', left->freq + right->freq);
+        root->left = left;
+        root->right = right;
+        insertNode(heap, root);
+    }
+    return getMin(heap);
+}
