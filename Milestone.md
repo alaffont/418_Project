@@ -5,7 +5,7 @@
 5/2-5/4: Work on posterboard graphs, documentation and report(Both) <br /> 
 
 ### Work Update
-	So far we have finished implementing both sequential versions of LZSS compression as well as Huffman compression, although they have both taken significantly longer than expected. However, we expected this step to take the longest amount of time to code up, since we didn’t use any of the many sources online for sequential code versions of both compressions. The reason we didn’t use any online source for this code is because we wanted to write our own version in order to make it easier for us to parallelize.
+	'So far we have finished implementing both sequential versions of LZSS compression as well as Huffman compression, although they have both taken significantly longer than expected. However, we expected this step to take the longest amount of time to code up, since we didn’t use any of the many sources online for sequential code versions of both compressions. The reason we didn’t use any online source for this code is because we wanted to write our own version in order to make it easier for us to parallelize.'
 
 	In addition, we have built tools that we will use when debugging our parallel version. This will make our parallelization go quicker. 
 
@@ -15,7 +15,3 @@
 
 	A lot of our concerns have been implementing sequential versions of the code, since we not only have to write our own sequential version but also plan to parallelize it in the future. For all of our assignments, most of the sequential code is given to us and we just have to parallelize it, but we are worried our sequential code might not be easily parallelizable and will cause us to have poor results. 
 
-
-code {
-  white-space : pre-wrap !important;
-}
