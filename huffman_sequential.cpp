@@ -1,196 +1,109 @@
-#include <cmath>
 #include <iostream>
-#include <sstream>
-#include <string>
-#include <fstream>
-#include <vector>
-#include <bitset>
-using namespace std;
-
-// GLOBAL VARIABLES
-int MATCH_LENGTH_MASK = 16;
-int WINDOW_SIZE = 4096;
-
-// ascii to char
-void print_char(int v){
-    std::cout << (char)v;
+#include <cstdlib>
+struct node {
+ 
+    // One of the input characters
+    char data;
+ 
+    // Frequency of the character
+    unsigned freq;
+    // Left and right child of this node
+    struct node *left;
+    struct node *right;
+};
+struct tree {
+     
+    unsigned size;
+    unsigned capacity;
+    struct node **array;
+};
+struct tree *newNode(char data, unsigned frequency) {
+    struct node *result = (struct node*)malloc(sizeof(struct node));
+    result->left = NULL;
+    result->right = NULL;
+    result->data = data;
+    result->freq = frequency;
+    return result;
 }
-// get match distance using bit operations
-uint16_t get_distance(uint16_t input){
-    return (input >> 4); 
+struct tree *newTree(unsigned capacity) {
+    struct tree *result = (struct tree*)malloc(sizeof(struct tree));
+    result->size = 0;
+    result->capacity = capacity;
+    result->array = (struct node**)malloc(result->capacity * sizeof(struct node*));
+    return result
 }
-
-// get match length using bit operations
-uint16_t get_length(uint16_t input){
-    return (input & 0xF);
+void swapNode(struct node** first, struct node** second) {
+    struct node* temp = *first;
+    *first = *second;
+    *second = temp;
 }
-
-bool are_vectors_equal(std::vector<unsigned char> s1, std::vector<unsigned char> s2){
-    if(s1.size() != s2.size()){
-        printf("Strings aren't equal length\n");
-        return 0;
-    }
-
-    for(int i = 0; i < s1.size(); i++){
-        if(s1.at(i) != s2.at(i)){
-            printf("string values mismatch");
-            return 0;
-        }
-    }
-    printf("Strings are equal!\n");
-    return 1;
-}
-
-
-uint16_t find_longest_match(std::vector<unsigned char> data, int i){
-    uint orig_i = i;
-    uint cur = max(0, i - WINDOW_SIZE);
-    // create the struct for storing the longest word we are currently look at
-    uint length_of_match = 0;
-    uint longest_match = 0;
-    uint start = 0;
-    while(cur < orig_i & i < data.size()){
-        if(data.at(i) == data.at(cur) & longest_match <= 16){
-            // increment i and cur since we have a match
-            i += 1;
-            cur += 1;
-            length_of_match += 1;
-        }else{
-            // check if longest string so far
-            if (longest_match < length_of_match){
-                // new length
-                start = cur;
-                longest_match = length_of_match;
-            }
-            // reset length of current match 
-            length_of_match = 0;
-            cur += 1;
-            i = orig_i;
-        }
+void insertNode(struct tree* bTree, struct node* bNode) {
+    int index = bTree->size - 1;
+    while (index && bNode->freq < bTree->array[(index - 1)/2]->freq) {
+        index = (index - 1) / 2;
     } 
-
-    // 12 bytes = distance and 4 bytes is length
-    if(longest_match < 2){
-        return 0;
+    bTree->array[index] = bNode;
+    bTree->size = bTree->size + 1;
+}
+void buildHtree(struct tree* bTree, int index) {
+    int least = index;
+    int left = 2 * index + 1;
+    int right = left + 1;
+    bool cond1 = left < bTree->size;
+    bool cond2 = bTree->array[left]->freq < bTree->array[least]->freq;
+    if (cond1 && cond2) {
+        least = left;
     }
-
-    uint16_t ret = 0;
-    // use our custom way of storing length and start of match in 2 bytes
-    ret = (longest_match) | ((start - longest_match) << 4);
-
-    return ret;
+    bool cond3 = right < bTree->size;
+    bool cond4 = bTree->array[right]->freq < bTree->array[least]->freq;
+    if (cond3 && cond4) {
+        least = right;
+    }
+    if (least != index) {
+        swapNode(&bTree->array[least], &bTree->array[index]);
+        buildHtree(bTree, least);
+    }
+}
+struct node* getMin(struct tree* bTree) {
+    int last = bTree->size - 1;
+    struct node* result = bTree->array[0];
+    bTree->array[0] = last;
+    bTree->size = bTree->size - 1;
+    createHtree(bTree, 0);
+    return result;
+}
+void createHTree(struct tree* bTree) {
+    int max = bTree->size - 1;
+    for (int i = (max - 1)/2; i >= 0; i--) {
+        buildHtree(bTree, i);
+    }
 }
 
-
-// unsigned char is the representation of bytes that we will be using
-std::vector<unsigned char> compress(std::vector<unsigned char> data, std::vector<bool> &compress_flags){
-    int i = 0;
-    std::vector<unsigned char> output_buffer;
-    // loop through all char in text
-    while (i < data.size()){
-        uint16_t longest_match = find_longest_match(data, i);
-        // printf("3\n");
-        uint16_t match_length = get_length(longest_match); 
-        if(match_length > 2){
-            // 12 bytes = distance and 4 bytes is length
-            uint16_t match_distance = get_distance(longest_match);
-            uint16_t match_length = get_length(longest_match); 
-            // indicate that we are compressing
-            compress_flags[i] = 1;
-            // std::bitset<8> p1(longest_match & 0xFF);
-            // std::bitset<8> p2((longest_match >> 8) & 0xFF);
-            // std::bitset<16> w(longest_match);
-            // std::cout << "p1: " << p1 << '\n';
-            // std::cout << "p2: " << p2 << '\n';
-            // std::cout << "whole: " << w << '\n';
-            output_buffer.push_back((longest_match >> 8) & 0xFF);
-            output_buffer.push_back(longest_match & 0xFF);
-            // check if data is being packed correctly
-            // printf("actual: ");
-            // print_string(data, i, i + match_length);
-            // printf("mine: ");
-            // print_string(data, (match_distance), (match_distance) + match_length);
-            // printf("\n");
-            // printf("(%d,%d)\n", match_distance, match_length);
-            // output_buffer.push_back(((unsigned char)(longest_match >> 4) && 0xff));
-            i += match_length;
-        }else{
-            // printf("%d", i);
-            // printf("%d", data.at(i));
-            output_buffer.push_back(data.at(i));
-            i += 1;
-        }
-    }
-    return output_buffer;
+bool isLeaf (struct node* bNode) {
+    return !(bNode->left) && !(bNode->right);
 }
 
-std::vector<unsigned char> decompress(std::vector<unsigned char> data, std::vector<bool> &compress_flags){
-    int compress_index = 0;
-    int data_index = 0;
-    std::vector<unsigned char> output;
-
-    while(data_index < data.size()){
-        // item is compressed
-        // printf("%d\n", compress_flags.at(compress_index));
-        if(compress_flags.at(compress_index) == 1){
-            uint16_t p1 = data[data_index];
-            uint16_t p2 = data[data_index+1];
-            uint16_t compressed_data = ((p1 << 8) & 0xFF00) | p2;
-            uint16_t match_distance = get_distance(compressed_data);
-            uint16_t match_length = get_length(compressed_data); 
-            // printf("(%d,%d)\n", match_distance, match_length);
-            // output.push_back(40);
-            // for (char c : std::to_string(match_distance)) {
-            //     output.push_back(static_cast<int>(c));
-            // }
-            // output.push_back(44);
-            // for (char c : std::to_string(match_length)){
-            //     output.push_back(static_cast<int>(c));
-            // }
-            // output.push_back(41);
-            for(int i = 0; i < match_length; i++){
-                output.push_back(output[(match_distance)+i]);
-            }
-            // two bytes for compressed
-            data_index += 2;
-            compress_index += match_length;
-        }
-        // item isn't compressed
-        else{
-            output.push_back(data[data_index]);
-            // one byte for non compressed
-            data_index += 1;
-            compress_index += 1;
-        }
+struct tree* heapCreate(char input[], int freq[], int size) {
+    struct tree* result = newTree(size);
+    result->size = size;
+    for (int i = 0; i < size; i++) {
+        result->array[i] = newNode(input[i], freq[i]);
     }
-    return output;
+    createHtree(result);
+    return result;
 }
 
-
-int main(int argc, char *argv[]) {
-    // printf("%d",argc);
-    // printf("%s", argv[1]);
-    std::ifstream inFile;
-    //open the input file
-    inFile.open(argv[1]); 
-    
-    std::stringstream strStream;
-    //read the file
-    strStream << inFile.rdbuf(); 
-    //str holds the content of the file
-    std::string s = strStream.str(); 
-
-    // text input
-    vector<unsigned char> input(s.begin(), s.end());
-    // compression flags all init at 0
-    vector<bool> compress_flags(input.size(), 0);
-    
-    auto compressed_buf = compress(input, compress_flags);
-
-    auto output = decompress(compressed_buf, compress_flags);
-
-    bool res = are_vectors_equal(output, input);
-
-
-    return 1;
+struct node* createHuffmanTree(char input[], int freq[], int size) {
+    struct node *left, *right, *root;
+    struct tree* heap = heapCreate(input, freq, size);
+    while (heap->size != 1) {
+        left = getMin(heap);
+        right = getMin(heap);
+        //'+' is for internal nodes that have the frequency of the sum of its 2 children
+        root = newNode('+', left->freq + right->freq);
+        root->left = left;
+        root->right = right;
+        insertNode(heap, root);
+    }
+    return getMin(heap);
 }
