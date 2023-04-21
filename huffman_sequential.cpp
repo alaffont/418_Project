@@ -1,5 +1,8 @@
+
 #include <iostream>
 #include <cstdlib>
+#include <string>
+
 struct node {
  
     // One of the input characters
@@ -11,13 +14,15 @@ struct node {
     struct node *left;
     struct node *right;
 };
+
 struct tree {
      
     unsigned size;
     unsigned capacity;
     struct node **array;
 };
-struct tree *newNode(char data, unsigned frequency) {
+
+struct node *newNode(char data, unsigned frequency) {
     struct node *result = (struct node*)malloc(sizeof(struct node));
     result->left = NULL;
     result->right = NULL;
@@ -25,18 +30,21 @@ struct tree *newNode(char data, unsigned frequency) {
     result->freq = frequency;
     return result;
 }
+
 struct tree *newTree(unsigned capacity) {
     struct tree *result = (struct tree*)malloc(sizeof(struct tree));
     result->size = 0;
     result->capacity = capacity;
     result->array = (struct node**)malloc(result->capacity * sizeof(struct node*));
-    return result
+    return result;
 }
+
 void swapNode(struct node** first, struct node** second) {
     struct node* temp = *first;
     *first = *second;
     *second = temp;
 }
+
 void insertNode(struct tree* bTree, struct node* bNode) {
     int index = bTree->size - 1;
     while (index && bNode->freq < bTree->array[(index - 1)/2]->freq) {
@@ -45,6 +53,7 @@ void insertNode(struct tree* bTree, struct node* bNode) {
     bTree->array[index] = bNode;
     bTree->size = bTree->size + 1;
 }
+
 void buildHtree(struct tree* bTree, int index) {
     int least = index;
     int left = 2 * index + 1;
@@ -64,14 +73,16 @@ void buildHtree(struct tree* bTree, int index) {
         buildHtree(bTree, least);
     }
 }
+
 struct node* getMin(struct tree* bTree) {
     int last = bTree->size - 1;
     struct node* result = bTree->array[0];
-    bTree->array[0] = last;
+    bTree->array[0] = bTree->array[last];
     bTree->size = bTree->size - 1;
-    createHtree(bTree, 0);
+    buildHtree(bTree, 0);
     return result;
 }
+
 void createHTree(struct tree* bTree) {
     int max = bTree->size - 1;
     for (int i = (max - 1)/2; i >= 0; i--) {
@@ -89,7 +100,7 @@ struct tree* heapCreate(char input[], int freq[], int size) {
     for (int i = 0; i < size; i++) {
         result->array[i] = newNode(input[i], freq[i]);
     }
-    createHtree(result);
+    createHTree(result);
     return result;
 }
 
