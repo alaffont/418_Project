@@ -1,281 +1,182 @@
 #include <iostream>
-#include <utility>
-#include <vector>
-
-// Opening input file in read-only mode
-int fd1 = open(“sample.txt”, O_RDONLY);
-// Creating output file in write mode
-int fd2 = open(“sample - compressed.txt”, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
-
+#include <string>
+#include <queue>
+#include <unordered_map>
+#include <sstream>
+#include <fstream>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <malloc.h>
 using namespace std;
- 
-// Structure for tree node
-struct Node {
-    char character;
-    int freq;
-    Node *l, *r;
- 
-    Node(char c, int f)
-        : character(c)
-        , freq(f)
-        , l(nullptr)
-        , r(nullptr)
-    {
-    }
+
+int decodeFd = 0;
+char* decodedEncoding;
+int position = 0;
+
+// A Tree node
+struct Node
+{
+	char ch;
+	int freq;
+	Node *left, *right;
 };
- 
-// Structure for min heap
-struct Min_Heap {
-    int size;
-    vector<Node*> array;
- 
-    Min_Heap(int s)
-        : size(s)
-        , array(s)
-    {
-    }
+
+// Function to allocate a new tree node
+Node* getNode(char ch, int freq, Node* left, Node* right)
+{
+	Node* node = new Node();
+
+	node->ch = ch;
+	node->freq = freq;
+	node->left = left;
+	node->right = right;
+
+	return node;
+}
+
+// Comparison object to be used to order the heap
+struct comp
+{
+	bool operator()(Node* l, Node* r)
+	{
+		// highest priority item has lowest frequency
+		return l->freq > r->freq;
+	}
 };
- 
-// Function to create min heap
-Min_Heap* createAndBuildMin_Heap(char arr[], int freq[],
-                                 int unique_size)
+
+// traverse the Huffman Tree and store Huffman Codes
+// in a map.
+void encode(Node* root, string str,
+			unordered_map<char, string> &huffmanCode)
 {
-    int i;
- 
-    // Initializing heap
-    Min_Heap* Min_Heap = new Min_Heap(unique_size);
- 
-    // Initializing the array of pointers in minheap.
-    // Pointers pointing to new nodes of character
-    // and their frequency
-    for (i = 0; i < unique_size; ++i) {
-        Min_Heap->array[i] = new Node(arr[i], freq[i]);
-    }
- 
-    int n = Min_Heap->size - 1;
-    for (i = (n - 1) / 2; i >= 0; --i) {
-        // Standard function for Heap creation
-        Heapify(Min_Heap, i);
-    }
- 
-    return Min_Heap;
+	if (root == nullptr)
+		return;
+
+	// found a leaf node
+	if (!root->left && !root->right) {
+		huffmanCode[root->ch] = str;
+	}
+
+	encode(root->left, str + "0", huffmanCode);
+	encode(root->right, str + "1", huffmanCode);
 }
 
-// Function to build Huffman Tree
-struct Node* buildHuffmanTree(char arr[], int freq[],
-                              int unique_size)
+// traverse the Huffman Tree and decode the encoded string
+void decode(Node* root, int &index, string str)
 {
-    struct Node *l, *r, *top;
-    while (!isSizeOne(Min_Heap)) {
-        l = extractMinFromMin_Heap(Min_Heap);
-        r = extractMinFromMin_Heap(Min_Heap);
-        top = newNode('$', l->freq + r->freq);
-        top->l = l;
-        top->r = r;
-        insertIntoMin_Heap(Min_Heap, top);
-    }
-    return extractMinFromMin_Heap(Min_Heap);
+	if (root == nullptr) {
+		return;
+	}
+
+	// found a leaf node
+	if (!root->left && !root->right)
+	{
+		decodedEncoding[position++] = root->ch; 
+		return;
+	}
+
+	index++;
+
+	if (str[index] =='0')
+		decode(root->left, index, str);
+	else
+		decode(root->right, index, str);
 }
 
-// Structure to store codes in compressed file
-typedef struct code {
-    char k;
-    int l;
-    int code_arr[16];
-    struct code* p;
-} code;
- 
-// Function to print codes into file
-void printCodesIntoFile(int fd2, struct Node* root,
-                        int t[], int top = 0)
+// Builds Huffman Tree and decode given input text
+void buildHuffmanTree(string text)
 {
-    int i;
-    if (root->l) {
-        t[top] = 0;
-        printCodesIntoFile(fd2, root->l, t, top + 1);
+	// count frequency of appearance of each character
+	// and store it in a map
+	unordered_map<char, int> freq;
+	for (char ch: text) {
+		freq[ch]++;
+	}
+
+	// Create a priority queue to store live nodes of
+	// Huffman tree;
+	priority_queue<Node*, vector<Node*>, comp> pq;
+
+	// Create a leaf node for each character and add it
+	// to the priority queue.
+	for (auto pair: freq) {
+		pq.push(getNode(pair.first, pair.second, nullptr, nullptr));
+	}
+
+	// do till there is more than one node in the queue
+	while (pq.size() != 1)
+	{
+		// Remove the two nodes of highest priority
+		// (lowest frequency) from the queue
+		Node *left = pq.top(); pq.pop();
+		Node *right = pq.top();	pq.pop();
+
+		// Create a new internal node with these two nodes
+		// as children and with frequency equal to the sum
+		// of the two nodes' frequencies. Add the new node
+		// to the priority queue.
+		int sum = left->freq + right->freq;
+		pq.push(getNode('\0', sum, left, right));
+	}
+
+	// root stores pointer to root of Huffman Tree
+	Node* root = pq.top();
+
+	// traverse the Huffman Tree and store Huffman Codes
+	// in a map. Also prints them
+	unordered_map<char, string> huffmanCode;
+	encode(root, "", huffmanCode);
+
+	cout << "Huffman Codes are :\n" << '\n';
+	for (auto pair: huffmanCode) {
+		cout << pair.first << " " << pair.second << '\n';
+	}
+
+	// print encoded string
+	string str = "";
+	for (char ch: text) {
+		str += huffmanCode[ch];
+	}
+
+    cout << "Length of encoded string: " << str.length() << endl;
+
+    const char *cstr = str.c_str();
+    int encbits = str.length();
+    char *rawenc = (char *)malloc(encbits / 8);
+    if (!rawenc) abort();
+
+    for (int i = 0; i < encbits; i++) {
+        int rawenc_idx = i / 8;
+        int rawinc_off = i % 8;
+        char bit = !(31 - cstr[i]);
+        rawenc[rawenc_idx] |= (bit << (7 - rawinc_off));
     }
- 
-    if (root->r) {
-        t[top] = 1;
-        printCodesIntoFile(fd2, root->r, t, top + 1);
-    }
- 
-    if (isLeaf(root)) {
-        data = (code*)malloc(sizeof(code));
-        tree = (Tree*)malloc(sizeof(Tree));
-        data->p = NULL;
-        data->k = root->character;
-        tree->g = root->character;
-        write(fd2, &tree->g, sizeof(char));
-        for (i = 0; i < top; i++) {
-            data->code_arr[i] = t[i];
-        }
-        tree->len = top;
-        write(fd2, &tree->len, sizeof(int));
-        tree->dec
-            = convertBinaryToDecimal(data->code_arr, top);
-        write(fd2, &tree->dec, sizeof(int));
-        data->l = top;
-        data->p = NULL;
-        if (k == 0) {
-            front = rear = data;
-            k++;
-        }
-        else {
-            rear->p = data;
-            rear = rear->p;
-        }
-    }
+
+    int outfd = open("huffman_output.bin", O_WRONLY | O_TRUNC | O_CREAT, 0666);
+    write(outfd, rawenc, encbits / 8);
+
+	// traverse the Huffman Tree again and this time
+	// decode the encoded string
+    int index = -1;
+	while (index < (int)str.size() - 2) {
+		decode(root, index, str);
+	}
 }
 
-// Function to compress file
-void compressFile(int fd1, int fd2, unsigned char a)
+// Huffman coding algorithm
+int main()
 {
-    char n;
-    int h = 0, i;
- 
-    // Codes are written into file in bit by bit format
-    while (read(fd1, &n, sizeof(char)) != 0) {
-        rear = front;
-        while (rear->k != n && rear->p != NULL) {
-            rear = rear->p;
-        }
-        if (rear->k == n) {
-            for (i = 0; i < rear->l; i++) {
-                if (h < 7) {
-                    if (rear->code_arr[i] == 1) {
-                        a++;
-                        a = a << 1;
-                        h++;
-                    }
-                    else if (rear->code_arr[i] == 0) {
-                        a = a << 1;
-                        h++;
-                    }
-                }
-                else if (h == 7) {
-                    if (rear->code_arr[i] == 1) {
-                        a++;
-                        h = 0;
-                    }
-                    else {
-                        h = 0;
-                    }
-                    write(fd2, &a, sizeof(char));
-                    a = 0;
-                }
-            }
-        }
-    }
-    for (i = 0; i < 7 - h; i++) {
-        a = a << 1;
-    }
-    write(fd2, &a, sizeof(char));
+    decodeFd = open("huffman_output.txt", O_WRONLY, O_TRUNC | O_CREAT);
+    std::ifstream t("example.txt");
+    std::stringstream buffer;
+    buffer << t.rdbuf();
+	buffer.seekg(0, ios::end);
+	int size = buffer.tellg();
+	buffer.seekg(0, ios::beg);
+	decodedEncoding = (char*)malloc(sizeof(char) * size);
+	buildHuffmanTree(buffer.str());
+	write(decodeFd, decodedEncoding, size);
+	return 0;
 }
-
-typedef struct Tree {
-    char g;
-    int len;
-    int dec;
-    struct Tree* f;
-    struct Tree* r;
-} Tree;
- 
-// Function to extract Huffman codes
-// from a compressed file
-void ExtractCodesFromFile(int fd1)
-{
-    read(fd1, &t->g, sizeof(char));
-    read(fd1, &t->len, sizeof(int));
-    read(fd1, &t->dec, sizeof(int));
-}
- 
-// Function to rebuild the Huffman tree
-void ReBuildHuffmanTree(int fd1, int size)
-{
-    int i = 0, j, k;
-    tree = (Tree*)malloc(sizeof(Tree));
-    tree_temp = tree;
-    tree->f = NULL;
-    tree->r = NULL;
-    t = (Tree*)malloc(sizeof(Tree));
-    t->f = NULL;
-    t->r = NULL;
-    for (k = 0; k < size; k++) {
-        tree_temp = tree;
-        ExtractCodesFromFile(fd1);
-        int bin[MAX], bin_con[MAX];
-        for (i = 0; i < MAX; i++) {
-            bin[i] = bin_con[i] = 0;
-        }
-        convertDecimalToBinary(bin, t->dec, t->len);
-        for (i = 0; i < t->len; i++) {
-            bin_con[i] = bin[i];
-        }
- 
-        for (j = 0; j < t->len; j++) {
-            if (bin_con[j] == 0) {
-                if (tree_temp->f == NULL) {
-                    tree_temp->f
-                        = (Tree*)malloc(sizeof(Tree));
-                }
-                tree_temp = tree_temp->f;
-            }
-            else if (bin_con[j] == 1) {
-                if (tree_temp->r == NULL) {
-                    tree_temp->r
-                        = (Tree*)malloc(sizeof(Tree));
-                }
-                tree_temp = tree_temp->r;
-            }
-        }
-        tree_temp->g = t->g;
-        tree_temp->len = t->len;
-        tree_temp->dec = t->dec;
-        tree_temp->f = NULL;
-        tree_temp->r = NULL;
-        tree_temp = tree;
-    }
-}
-
-void decompressFile(int fd1, int fd2, int f)
-{
-    int inp[8], i, k = 0;
-    unsigned char p;
-    read(fd1, &p, sizeof(char));
-    convertDecimalToBinary(inp, p, 8);
-    tree_temp = tree;
-    for (i = 0; i < 8 && k < f; i++) {
-        if (!isroot(tree_temp)) {
-            if (i != 7) {
-                if (inp[i] == 0) {
-                    tree_temp = tree_temp->f;
-                }
-                if (inp[i] == 1) {
-                    tree_temp = tree_temp->r;
-                }
-            }
-            else {
-                if (inp[i] == 0) {
-                    tree_temp = tree_temp->f;
-                }
-                if (inp[i] == 1) {
-                    tree_temp = tree_temp->r;
-                }
-                if (read(fd1, &p, sizeof(char)) != 0) {
-                    convertDecimalToBinary(inp, p, 8);
-                    i = -1;
-                }
-                else {
-                    break;
-                }
-            }
-        }
-        else {
-            k++;
-            write(fd2, &tree_temp->g, sizeof(char));
-            tree_temp = tree;
-            i--;
-        }
-    }
-} 
