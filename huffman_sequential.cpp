@@ -9,6 +9,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <malloc.h>
+#include <chrono>
+#include <bits/stdc++.h>
 using namespace std;
 
 int decodeFd = 0;
@@ -88,6 +90,10 @@ void decode(Node* root, int &index, string str)
 // Builds Huffman Tree and decode given input text
 void buildHuffmanTree(string text)
 {
+	time_t start, end;
+	//time starter for building huffman tree
+	time(&start);
+    ios_base::sync_with_stdio(false);
 	// count frequency of appearance of each character
 	// and store it in a map
 	unordered_map<char, int> freq;
@@ -123,10 +129,18 @@ void buildHuffmanTree(string text)
 
 	// root stores pointer to root of Huffman Tree
 	Node* root = pq.top();
-
 	// traverse the Huffman Tree and store Huffman Codes
-	// in a map. Also prints them
+	// in a map. 
 	unordered_map<char, string> huffmanCode;
+	time(&end);
+    double time_taken = double(end - start);
+    cout << "Time taken to build Huffman Tree is : " << fixed
+        << time_taken << setprecision(5);
+    cout << " sec " << endl;
+	//time starter for time it takes to encode file
+	start = time(NULL);
+	time(&start);
+    ios_base::sync_with_stdio(false);
 	encode(root, "", huffmanCode);
 
 	cout << "Huffman Codes are :\n" << '\n';
@@ -134,7 +148,6 @@ void buildHuffmanTree(string text)
 		cout << pair.first << " " << pair.second << '\n';
 	}
 
-	// print encoded string
 	string str = "";
 	for (char ch: text) {
 		str += huffmanCode[ch];
@@ -156,13 +169,27 @@ void buildHuffmanTree(string text)
 
     int outfd = open("huffman_output.bin", O_WRONLY | O_TRUNC | O_CREAT, 0666);
     write(outfd, rawenc, encbits / 8);
-
 	// traverse the Huffman Tree again and this time
 	// decode the encoded string
+	time(&end);
+    time_taken = double(end - start);
+    cout << "Time taken to encode program is : " << fixed
+    << time_taken << setprecision(5);
+    cout << " sec " << endl;
+	//timer starting for decoder
+	start = time(NULL);
+    time(&start);
+    ios_base::sync_with_stdio(false);
     int index = -1;
 	while (index < (int)str.size() - 2) {
 		decode(root, index, str);
 	}
+	time(&end);
+    time_taken = double(end - start);
+    cout << "Time taken to decode is : " << fixed
+        << time_taken << setprecision(5);
+    cout << " sec " << endl;
+	
 }
 
 // Huffman coding algorithm
