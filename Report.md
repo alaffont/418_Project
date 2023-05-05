@@ -112,6 +112,7 @@ The reason we chose to use OpenMP instead of CUDA for huffman coding is because 
 
 
 Work Distribution
+<br>
 Tyler <br>
 Modifying existing huffman sequential code <br>
 Huffman parallelization code <br>
@@ -123,15 +124,17 @@ Sequential LZSS implementation <br>
 Parallel LZSS implementation <br>
 Debugging<br>
 Report<br>
+<br>
 Resources
-Ojala, P. (n.d.). Compression Basics. Compression basics. Retrieved May 5, 2023, from http://a1bert.kapsi.fi/Dev/pucrunch/packing.html 
-Wikimedia Foundation. (2023, April 19). Huffman coding. Wikipedia. Retrieved April 24, 2023, from https://en.wikipedia.org/wiki/Huffman_coding 
-LZSS. The Hitchhiker's Guide to Compression. (n.d.). Retrieved April 16, 2023, from https://go-compression.github.io/algorithms/lzss/ 
-farhana786. (2020, October 12). Data-structure-Programs/Huffmancoding. GitHub. Retrieved April 20, 2023, from https://github.com/farhana786/Data-Structure-Programs/blob/main/HuffmanCoding 
-https://www.openmp.org/spec-html/5.0/openmpsu104.html
-https://www.smcm.iqfr.csic.es/docs/intel/compiler_c/main_cls/optaps/common/optaps_par_compat_libs_using.htm
-https://ieeexplore.ieee.org/document/6413553
-https://ieeexplore.ieee.org/document/8367376
+<br>
+Ojala, P. (n.d.). Compression Basics. Compression basics. Retrieved May 5, 2023, from http://a1bert.kapsi.fi/Dev/pucrunch/packing.html <br>
+Wikimedia Foundation. (2023, April 19). Huffman coding. Wikipedia. Retrieved April 24, 2023, from https://en.wikipedia.org/wiki/Huffman_coding <br>
+LZSS. The Hitchhiker's Guide to Compression. (n.d.). Retrieved April 16, 2023, from https://go-compression.github.io/algorithms/lzss/ <br>
+farhana786. (2020, October 12). Data-structure-Programs/Huffmancoding. GitHub. Retrieved April 20, 2023, from https://github.com/farhana786/Data-Structure-Programs/blob/main/HuffmanCoding <br>
+https://www.openmp.org/spec-html/5.0/openmpsu104.html <br>
+https://www.smcm.iqfr.csic.es/docs/intel/compiler_c/main_cls/optaps/common/optaps_par_compat_libs_using.htm <br>
+https://ieeexplore.ieee.org/document/6413553 <br>
+https://ieeexplore.ieee.org/document/8367376 <br>
 
 
 
