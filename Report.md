@@ -1,11 +1,11 @@
 Parallel Compression
 Tyler Tan, Alfonso Laffont
 
-Summary
+Summary <br>
 The goal of our project was to implement both Huffman compression and LZSS compression algorithms using CUDA. The project deliverables include a sequential and parallel implementation of Huffman and LZSS compression algorithms including graphs/data analysis describing the work balance, tuning of parameters, and tradeoffs between parallelization and compression amount. We were able to achieve a close to 29x speedup for our huffman code compared to our sequential huffman code by launching pragma omp threads to traverse and build the huffman tree, allowing for significant speedups for encoding and decoding. We found that LZSS was able to achieve a greater than 8x speedup compared to sequential code by launching one cuda thread for recursive lookup back and using granularity to decrease kernel overhead. 
 
 
-Background
+Background <br>
 As the amount of data in the world increases, the requirements to store this data increase as well. So, we decided to implement compression algorithms and parallelize them. The two compression algorithms that we picked were LZSS and Huffman compression. These are some of the commonly used compression algorithms. Both of these algorithms are lossless compression algorithms which means that they compress data without any loss of information or reduction in quality. This is an important feature since it allows for no consequences of compression.
 
 LZSS compression works by referencing characters that have repeated characters rather than writing them again keeping the location of the match and the length of the match. 
