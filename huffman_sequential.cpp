@@ -9,6 +9,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <malloc.h>
+#include <cstdio>
+#include <ctime>
 #include <chrono>
 #include <bits/stdc++.h>
 using namespace std;
@@ -90,10 +92,7 @@ void decode(Node* root, int &index, string str)
 // Builds Huffman Tree and decode given input text
 void buildHuffmanTree(string text)
 {
-	time_t start, end;
-	//time starter for building huffman tree
-	time(&start);
-    ios_base::sync_with_stdio(false);
+	std::clock_t startcputime = std::clock();
 	// count frequency of appearance of each character
 	// and store it in a map
 	unordered_map<char, int> freq;
@@ -132,15 +131,7 @@ void buildHuffmanTree(string text)
 	// traverse the Huffman Tree and store Huffman Codes
 	// in a map. 
 	unordered_map<char, string> huffmanCode;
-	time(&end);
-    double time_taken = double(end - start);
-    cout << "Time taken to build Huffman Tree is : " << fixed
-        << time_taken << setprecision(5);
-    cout << " sec " << endl;
-	//time starter for time it takes to encode file
-	start = time(NULL);
-	time(&start);
-    ios_base::sync_with_stdio(false);
+	
 	encode(root, "", huffmanCode);
 
 	cout << "Huffman Codes are :\n" << '\n';
@@ -171,26 +162,15 @@ void buildHuffmanTree(string text)
     write(outfd, rawenc, encbits / 8);
 	// traverse the Huffman Tree again and this time
 	// decode the encoded string
-	time(&end);
-    time_taken = double(end - start);
-    cout << "Time taken to encode program is : " << fixed
-    << time_taken << setprecision(5);
-    cout << " sec " << endl;
-	//timer starting for decoder
-	start = time(NULL);
-    time(&start);
-    ios_base::sync_with_stdio(false);
+	double cpu_duration = (std::clock() - startcputime) / (double)CLOCKS_PER_SEC;
+	std::cout << "Finished in " << cpu_duration << " seconds [CPU Clock] " << std::endl;
     int index = -1;
 	while (index < (int)str.size() - 2) {
 		decode(root, index, str);
 	}
-	time(&end);
-    time_taken = double(end - start);
-    cout << "Time taken to decode is : " << fixed
-        << time_taken << setprecision(5);
-    cout << " sec " << endl;
-	
 }
+
+
 
 // Huffman coding algorithm
 int main()
