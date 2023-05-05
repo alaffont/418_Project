@@ -112,17 +112,17 @@ The reason we chose to use OpenMP instead of CUDA for huffman coding is because 
 
 
 Work Distribution
-Tyler
-Modifying existing huffman sequential code
-Huffman parallelization code 
-Debugging
-Report
-
-Alfonso
-Sequential LZSS implementation 
-Parallel LZSS implementation 
-Debugging
-Report
+Tyler <br>
+Modifying existing huffman sequential code <br>
+Huffman parallelization code <br>
+Debugging <br>
+Report <br>
+<br><br>
+Alfonso<br>
+Sequential LZSS implementation <br>
+Parallel LZSS implementation <br>
+Debugging<br>
+Report<br>
 Resources
 Ojala, P. (n.d.). Compression Basics. Compression basics. Retrieved May 5, 2023, from http://a1bert.kapsi.fi/Dev/pucrunch/packing.html 
 Wikimedia Foundation. (2023, April 19). Huffman coding. Wikipedia. Retrieved April 24, 2023, from https://en.wikipedia.org/wiki/Huffman_coding 
